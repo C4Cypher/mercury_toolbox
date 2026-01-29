@@ -18,6 +18,8 @@
 :- import_module list.
 :- import_module array.
 
+:- import_module ordering.
+
 %-----------------------------------------------------------------------------%
 % Ordered set
 
@@ -189,19 +191,6 @@
 :- func reorder_by(comparison_func(T)::in(comparison_func), 
 	ordered_set(T)::in)	= (ordered_set(T)::out) is det.
 
-% An ordering is the arrangement of an ordered set by the index of it's sorted
-% set.  Indexes of the array are zero based, however, the elements of the array
-% refer to the one based indexes of the sorted set, as they refer to logical
-% order, not literal.
-
-% For example:  Given the ordered set of floats [1.5, 0.0, 0.0, 1.0], the
-% sorted set would be [0.0, 1.0, 1.5] and the ordering would be [3, 1, 1, 2].
-
-:- type ordering == array(int).
-
-:- func ordering_to_list(ordering) = list(int).
-:- func ordering_from_list(list(int)) = ordering.
-
 % in order for an ordering to be valid for a given set, it must contain at
 % least one index for every unique member of it's sorted set, and no indexes
 % that are out of the bounds of the sorted set.
@@ -227,7 +216,7 @@
 
 :- func det_apply_ordering(ordered_set(T), ordering) = ordered_set(T).
 :- pred det_apply_ordering(ordering::in, ordered_set(T)::in,  ordered_set(T)::out)
-	is  det.
+	is  det. 
 
 
 %-----------------------------------------------------------------------------%
@@ -499,9 +488,6 @@ reorder_by(CMP, OS, reorder_by(CMP, OS)).
 
 reorder_by(CMP, os(O0, _)) = 
 	os(O@mergesort(CMP, copy(O0)), sort_and_remove_dups(O)). 
-	
-ordering_to_list(Or) = array.to_list(Or).
-ordering_from_list(L) = array.array(L).
 
 valid_ordering_for(Or, os(_, S)) :-
 	array.size(S, SetSize),
