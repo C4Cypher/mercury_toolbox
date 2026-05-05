@@ -125,12 +125,16 @@
 :- func mergesort(comparison_func(T)::in(comparison_func), 
 	array(T)::array_di) = (array(T)::array_uo) is det.
 
-
-
 %-----------------------------------------------------------------------------%
 % Map Manipulation
 
 :- pred is_singleton(map(_, _)::in) is semidet.
+
+:- func map_semidet_fold(func(K, V, A) = A, map(K, V), A) = A.
+:- mode map_semidet_fold(in(func(in, in, in) = out is det), in, in) = out
+	is det.
+:- mode map_semidet_fold(in(func(in, in, in) = out is semidet), in, in) = out 
+	is semidet.
 	
 %-----------------------------------------------------------------------------%
 % Exceptions
@@ -715,6 +719,16 @@ search_until(CMP, R, A, Lo, Hi) =
 % Map Manipulation
 
 is_singleton(Map) :- keys(Map, [_]).
+
+
+:- pred apply_func(func(K, V, A) = A, K, V, A, A).
+:- mode apply_func((in(func(in, in, in) = out is det), in, in, in, out) is det.
+:- mode apply_func((in(func(in, in, in) = out is semidet), in, in, in, out)
+	is semidet.
+	
+apply_func(F, K, V, A, F(K, V, A)).
+
+semidet_fold(F, Map, !.A) = !:A :- map.foldl(apply_func(F), Map, !A).
 	
 %-----------------------------------------------------------------------------%
 % Exceptions
